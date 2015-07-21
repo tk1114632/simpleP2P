@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <openssl/sha.h>
-#include "client.h"
+#include "func.h"
 
 using namespace std;
 
