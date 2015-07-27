@@ -387,7 +387,7 @@ void handle_reply(int connfd) {
 		// save torrent file name    
    		FILE *oFile2;    
     	oFile2 = fopen("torrent_list", "a");
-    	fprintf(oFile2, "%s\n", oFileName.c_str());  
+    	fprintf(oFile2, "%s\n", file_name.c_str());  
     	fclose(oFile2);
 	}
 }
