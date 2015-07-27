@@ -89,6 +89,13 @@ int main(int argc, char* argv[]) {
 	fclose(oFile);
 	free(buffer);
 
+	// save torrent file name    
+    FILE *oFile2;    
+
+    oFile2 = fopen("torrent_list", "a");
+    fprintf(oFile2, "%s\n", oFileName.c_str());  
+    fclose(oFile2);
+
 	// publish torrent to server
 	oFile = fopen (oFileName.c_str(), "rb");
 	int sockfd = connectToServer(argv[3], tracker_port);	

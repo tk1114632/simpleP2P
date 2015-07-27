@@ -27,7 +27,7 @@ void send_ip_port(int sockfd, string &hashValue);
 int main(int argc, char* argv[]) {
     int listenfd, connfd;
     struct sockaddr_in servaddr;
-    char buff;
+   
     int n;
     
     if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -116,6 +116,8 @@ void receiveTorrent(int connfd, FILE* oFile) {
     // save torrent file name    
     FILE *oFile2;    
     char *c_ptr;
+    char *buff;
+
     oFile2 = fopen("torrent_list", "a");
     c_ptr = strchr(buff, '.');    
     char *torrentName = (char *) malloc(c_ptr - buff + 1);
