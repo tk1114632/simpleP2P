@@ -50,6 +50,8 @@ struct piece_info{
 	vector<int> index_vec;
 };
 
+//./downloader trackerIP port
+
 int main(int argc, char* argv[]) {
 	FILE* 	pFile;
 	string 	pFileName;  
@@ -377,6 +379,7 @@ void handle_reply(int connfd) {
 			fseek(com_file, i * BLOCK_SIZE, SEEK_SET);
     		fwrite(buffer, 1, oFileSize, com_file);
 			fclose(oFile);
+			remove(file_name.c_str());
 		}
 		free(buffer);
 		fclose(com_file);
