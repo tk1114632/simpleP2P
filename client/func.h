@@ -1,5 +1,5 @@
-#ifndef _CLIENT_H
-#define _CLIENT_H
+#ifndef _FUNC_H
+#define _FUNC_H
 
 // return sockfd
 int connectToServer(char* serverIP, int port);

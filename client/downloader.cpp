@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 		exit(2);	
 	}	
 	// publish torrent to server
-	int sockfd = connectToServer(argv[1],6666);	
+	int sockfd = connectToServer(argv[1],6667);	
 	char request = 'd';
 	char *buff;
 	int n, torrent_file_size;	

@@ -8,10 +8,12 @@
 
 using namespace std;
 
-// ./uploader FileName torrentName serverIP trackerPort
+// ./uploader FileName torrentName serverIP
 
 const int BLOCK_SIZE = 4*1024*1024;
 const int HASH_OUTPUT_SIZE = 20;
+
+#define tracker_port	6667
 
 int main(int argc, char* argv[]) {
 	FILE* 	pFile;
@@ -21,8 +23,6 @@ int main(int argc, char* argv[]) {
 	FILE* 	oFile;
 	string	oFileName;
 	int 	blocks_num;
-	
-	int tracker_port;
 
   	unsigned char* 	buffer;
 	
@@ -90,9 +90,8 @@ int main(int argc, char* argv[]) {
 	free(buffer);
 
 	// publish torrent to server
-	tracker_port = argv[4];
 	oFile = fopen (oFileName.c_str(), "rb");
-	int sockfd = connectToServer(argv[3], argv[4]);	
+	int sockfd = connectToServer(argv[3], tracker_port);	
 	publishTorrent(sockfd, oFile);
 	disconnectToServer(sockfd);
 	fclose(oFile);

@@ -9,7 +9,7 @@
 #include<stdlib.h>
 #include<memory.h>
 #include<stdio.h>
-#include "client.h"
+#include "func.h"
 
 int connectToServer(char* serverIP, int port) {
 	printf("connecting to IP:%s, port:%i\n", serverIP, port);
