@@ -231,9 +231,9 @@ void *download_helper(void *arg){
 	int id = global_id;
 	int sockfd; 
 	global_id++;
-	printf("in thread function ip is %s, port is %i\n", ((ip_info*)arg)->ip, ((ip_info*)arg)->port);	
+	printf("Peer ip is %s, port is %i\n", ((ip_info*)arg)->ip, ((ip_info*)arg)->port);	
 	sockfd = connectToServer(((ip_info*)arg)->ip, ((ip_info*)arg)->port);
-	printf("connected to server\n");
+	printf("connected to one peer\n");
 	//handshake
 	printf("hash_info in handshake is \n");
 	 for (int i = 0; i < 20; i++) {
@@ -383,6 +383,12 @@ void handle_reply(int connfd) {
 		}
 		free(buffer);
 		fclose(com_file);
+
+		// save torrent file name    
+   		FILE *oFile2;    
+    	oFile2 = fopen("torrent_list", "a");
+    	fprintf(oFile2, "%s\n", oFileName.c_str());  
+    	fclose(oFile2);
 	}
 }
 
