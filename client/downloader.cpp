@@ -6,7 +6,7 @@
 #include <cmath>
 #include <openssl/sha.h>
 #include <sys/socket.h>
-#include "client.h"
+#include "func.h"
 #include <string>
 #include <iostream>
 #include <istream>
