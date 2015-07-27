@@ -116,6 +116,13 @@ int main(int argc, char* argv[]) {
 	FILE *oFile3;
 	oFile3 = fopen(input, "w");
 	fprintf(oFile3, "%s", torrent_buff);
+
+	// save torrent file name    
+  	FILE *oFile2;    
+   	oFile2 = fopen("torrent_list", "a");
+   	fprintf(oFile2, "%s\n", input);  
+   	fclose(oFile2);
+
 	//hash torrent	
 	unsigned char* buff2 = (unsigned char *) malloc(fileSize);
 	memcpy(buff2, torrent_buff, fileSize);
@@ -383,12 +390,6 @@ void handle_reply(int connfd) {
 		}
 		free(buffer);
 		fclose(com_file);
-
-		// save torrent file name    
-   		FILE *oFile2;    
-    	oFile2 = fopen("torrent_list", "a");
-    	fprintf(oFile2, "%s\n", file_name.c_str());  
-    	fclose(oFile2);
 	}
 }
 
