@@ -50,6 +50,8 @@ struct piece_info{
 	vector<int> index_vec;
 };
 
+vector<*piece_info> seed_list;
+
 //./downloader trackerIP port
 
 int main(int argc, char* argv[]) {
@@ -144,6 +146,8 @@ int main(int argc, char* argv[]) {
 	pthread_mutex_init(&map_lock,NULL);
 	vector<pthread_t*> all_thread;
 
+
+	int seed_number = 0;
 	//multiple threads, connect to peer
 	while(flag != 'e'){
 		n = recv(sockfd, &flag, sizeof(char), 0);
@@ -158,7 +162,8 @@ int main(int argc, char* argv[]) {
 			printf("size is %i, ip is %s, port is %i\n",fileSize,peer_info->ip, peer_info->port);
 			pthread_t * thread_id = new pthread_t;
 			all_thread.push_back(thread_id);
-			pthread_create(thread_id,NULL,download_helper,peer_info);						
+			pthread_create(thread_id,NULL,download_helper,peer_info);	
+			seed_number++;					
 		}
 	}
 	disconnectToServer(sockfd);
@@ -194,22 +199,33 @@ int main(int argc, char* argv[]) {
 
 	//request
 	vector<pthread_t*> piece_thread;
-	for (auto it = thread_piece_map.begin(); it != thread_piece_map.end(); it++) {
-		piece_info* piece = new piece_info; 	
-		piece->index_vec = it->second;
-		piece->ip = thread_ip_info[it->first]; 
-		piece->port = thread_port_info[it->first];
+	// for (auto it = thread_piece_map.begin(); it != thread_piece_map.end(); it++) {
+	// 	piece_info* piece = new piece_info; 	
+	// 	piece->index_vec = it->second;
+	// 	piece->ip = thread_ip_info[it->first]; 
+	// 	piece->port = thread_port_info[it->first];
+	// 	pthread_t * thread_id = new pthread_t;
+	// 	piece_thread.push_back(thread_id);
+	// 	pthread_create(thread_id,NULL,setup_piece_download_conn,piece);
+	// }	
+	for (int i = 0; i < seed_number; i++) {
 		pthread_t * thread_id = new pthread_t;
-		piece_thread.push_back(thread_id);
-		pthread_create(thread_id,NULL,setup_piece_download_conn,piece);
-	}	
+	 	piece_thread.push_back(thread_id);
+	 	pthread_create(thread_id,NULL,setup_piece_download_conn,seed_list[i]);
+	}
 
-	for(int i=0; i<piece_thread.size(); i++){
+
+
+	for(int i = 0; i < piece_thread.size(); i++){
 		pthread_join(*piece_thread[i], NULL);	
 	}
-	for(int i=0; i<piece_thread.size(); i++){
+
+	integrateData();
+
+	for(int i = 0; i < piece_thread.size(); i++){
 		delete piece_thread[i];	
 	}
+
 	return 0;
 }
 
@@ -267,6 +283,12 @@ void *download_helper(void *arg){
 	thread_ip_info[id] = ((ip_info*)arg)->ip;
 	thread_port_info[id] = new_port;
 	download_time.push_back(0);
+
+	piece_info* new_seed = new piece_info;
+	new_seed->ip = ((ip_info*)arg)->ip;
+	new_seed->port = new_port;
+	seed_list.push_back(new_seed);
+
 	delete ((ip_info*)arg);
 }
 
@@ -369,6 +391,66 @@ void handle_reply(int connfd) {
 	printf("Received file %s\n", file_name.c_str()); 
 
 	piece_num++;
+	// if (piece_num == total_piece) {
+	// 	file_name = input_str.substr(0, input_str.find('.')) + ".avi";
+	// 	FILE *com_file = fopen(file_name.c_str(), "w");	
+	// 	char* buffer = (char*) malloc (BLOCK_SIZE);
+	// 	for (int i = 0; i < piece_num; i++) {
+	// 		temp.str("");			
+	// 		temp << i;
+	// 		file_name = input_str.substr(0, input_str.find('.')) + '_' + temp.str() + ".temp";
+	// 		oFile = fopen(file_name.c_str(), "r");
+ //  			fseek (oFile, 0, SEEK_END);
+ //  			int oFileSize = ftell (oFile);
+	// 		rewind (oFile);
+	// 		fread(buffer, 1, oFileSize, oFile);
+
+	// 		fseek(com_file, i * BLOCK_SIZE, SEEK_SET);
+ //    		fwrite(buffer, 1, oFileSize, com_file);
+	// 		fclose(oFile);
+	// 		remove(file_name.c_str());
+	// 	}
+	// 	free(buffer);
+	// 	fclose(com_file);
+
+	// 	// save torrent file name    
+ //   		FILE *oFile2;    
+ //    	oFile2 = fopen("torrent_list", "a");
+ //    	fprintf(oFile2, "%s\n", oFileName.c_str());  
+ //    	fclose(oFile2);
+	}
+}
+
+void *setup_piece_download_conn(void *arg){
+	printf("A new connection sets up\n");
+	int connfd = connectToServer(((piece_info*)arg)->ip, ((piece_info*)arg)->port);
+	
+	request(connfd, arg);
+	for (int i = 0; i < ((piece_info*)arg)->index_vec.size(); i++) {
+		int piece_index = ((piece_info*)arg)->index_vec[i];
+		if (send(connfd, &piece_index, sizeof(int), 0) < 0) {
+       	 	printf("send error\n");
+        	exit(0);
+   		}
+		handle_reply(connfd);
+	}
+	disconnectToServer(connfd);
+	// free(((piece_info*)arg)->ip);
+	// delete (piece_info*)arg;
+	
+}
+
+void arrange(int totalPieceNumber, int totalSeedNumber) {
+	int i = 0;
+	while (i<totalPieceNumber) {
+		for (int j = 0; j < totalSeedNumber; j++) {
+			seed_list[j]->index_vec.push_back(i);
+			i++;
+		}
+	}
+}
+
+void integrateData() {
 	if (piece_num == total_piece) {
 		file_name = input_str.substr(0, input_str.find('.')) + ".avi";
 		FILE *com_file = fopen(file_name.c_str(), "w");	
@@ -390,25 +472,14 @@ void handle_reply(int connfd) {
 		}
 		free(buffer);
 		fclose(com_file);
+<<<<<<< Updated upstream
 	}
-}
+=======
 
-void *setup_piece_download_conn(void *arg){
-	printf("A new connection sets up\n");
-	int connfd = connectToServer(((piece_info*)arg)->ip, ((piece_info*)arg)->port);
-	
-	request(connfd, arg);
-	for (int i = 0; i < ((piece_info*)arg)->index_vec.size(); i++) {
-		int piece_index = ((piece_info*)arg)->index_vec[i];
-		if (send(connfd, &piece_index, sizeof(int), 0) < 0) {
-       	 	printf("send error\n");
-        	exit(0);
-   		}
-		handle_reply(connfd);
-	}
-	disconnectToServer(connfd);
-	free(((piece_info*)arg)->ip);
-	delete (piece_info*)arg;
-	
+		// save torrent file name    
+   		FILE *oFile2;    
+    	oFile2 = fopen("torrent_list", "a");
+    	fprintf(oFile2, "%s\n", oFileName.c_str());  
+    	
+>>>>>>> Stashed changes
 }
-
