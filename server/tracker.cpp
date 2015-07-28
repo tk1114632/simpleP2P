@@ -27,7 +27,7 @@ void send_ip_port(int sockfd, string &hashValue);
 int main(int argc, char* argv[]) {
     int listenfd, connfd;
     struct sockaddr_in servaddr;
-   
+   	char buff;
     int n;
     
     if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
