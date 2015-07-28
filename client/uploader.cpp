@@ -22,7 +22,7 @@
 using namespace std;
 
 const int BLOCK_SIZE = 4*1024*1024;
-int port_num = 6882;
+int port_num = 7777;
 map<string, string> hash_map;   // key:info_hash, value:torrent_file_name
 
 void handle_handshake(int connfd, int length);
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
     memset(&servaddr, 0 ,sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr.sin_port = htons(6881);
+    servaddr.sin_port = htons(5432);
     
     if (bind(listenfd, (struct sockaddr*)&servaddr, sizeof(servaddr))) {
         printf("bind error\n");

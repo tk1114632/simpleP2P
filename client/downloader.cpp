@@ -28,6 +28,10 @@ void request(int connfd, int piece_index);
 void handle_reply(int connfd);
 void get_bitfield(int port, int &new_port, int id);
 void *setup_piece_download_conn(void *arg);
+
+void integrateData();
+void arrange(int totalPieceNumber, int totalSeedNumber);
+
 map<int, vector<int> > bitfield_map;
 vector<int> download_time;
 map<int, int> download_map;
@@ -50,7 +54,7 @@ struct piece_info{
 	vector<int> index_vec;
 };
 
-vector<*piece_info> seed_list;
+vector<piece_info*> seed_list;
 
 //./downloader trackerIP port
 
@@ -70,7 +74,7 @@ int main(int argc, char* argv[]) {
 
 	// check server IP
 	if (argc < 2) {
-		cerr << "no server IP entered" << endl;
+		cout << "no server IP entered" << endl;
 		exit(2);	
 	}	
 	// publish torrent to server
@@ -90,10 +94,10 @@ int main(int argc, char* argv[]) {
 	}
 	delete buff;
 	
-	cout<<"Please choose the file you want:"<<endl;
+	cout<<"CHOOSE THE TORRENT FILE FROM THE ABOVE LIST:"<<endl;
 	cin >> input_str;
 	const char * input = input_str.c_str();
-	printf("input is %s\n", input);
+	printf("%s\n CHOSEN", input);
 	
 	int string_size = strlen(input);
 	if(send(sockfd, &string_size, sizeof(int), 0) <0){
@@ -109,7 +113,7 @@ int main(int argc, char* argv[]) {
 	//receive size	
 	int fileSize;
 	n = recv(sockfd, &fileSize, sizeof(int), 0);
-	printf("receive file size: %i\n", fileSize);
+	//printf("receive file size: %i\n", fileSize);
 	//recv file
 	char* torrent_buff = (char*) malloc (fileSize + 1);
 	n = recv(sockfd, torrent_buff, fileSize, 0);
@@ -159,7 +163,7 @@ int main(int argc, char* argv[]) {
 			n = recv(sockfd, &(peer_info->port), sizeof(int), 0);			
 			peer_info->ip[fileSize] = '\0';
 			memcpy(peer_info->hash_info, hash_value, 20);
-			printf("size is %i, ip is %s, port is %i\n",fileSize,peer_info->ip, peer_info->port);
+			printf("Peer IP: %s, Port: %i\n", peer_info->ip, peer_info->port);
 			pthread_t * thread_id = new pthread_t;
 			all_thread.push_back(thread_id);
 			pthread_create(thread_id,NULL,download_helper,peer_info);	
@@ -197,6 +201,8 @@ int main(int argc, char* argv[]) {
 		thread_piece_map[download_map[i]].push_back(i);
 	}
 
+	arrange(total_piece , seed_number);
+
 	//request
 	vector<pthread_t*> piece_thread;
 	// for (auto it = thread_piece_map.begin(); it != thread_piece_map.end(); it++) {
@@ -224,6 +230,9 @@ int main(int argc, char* argv[]) {
 
 	for(int i = 0; i < piece_thread.size(); i++){
 		delete piece_thread[i];	
+	}
+	for(int i = 0; i < seed_list.size(); i++) {
+		delete seed_list[i];
 	}
 
 	return 0;
@@ -418,7 +427,7 @@ void handle_reply(int connfd) {
  //    	oFile2 = fopen("torrent_list", "a");
  //    	fprintf(oFile2, "%s\n", oFileName.c_str());  
  //    	fclose(oFile2);
-	}
+//	}
 }
 
 void *setup_piece_download_conn(void *arg){
@@ -443,15 +452,17 @@ void *setup_piece_download_conn(void *arg){
 void arrange(int totalPieceNumber, int totalSeedNumber) {
 	int i = 0;
 	while (i<totalPieceNumber) {
-		for (int j = 0; j < totalSeedNumber; j++) {
-			seed_list[j]->index_vec.push_back(i);
-			i++;
-		}
+		seed_list[i%totalSeedNumber] -> index_vec.push_back(i);
+		i++;
 	}
+	cout << "==========================" << i << endl;
 }
 
 void integrateData() {
-	if (piece_num == total_piece) {
+	string file_name;
+	FILE* oFile;
+	stringstream temp;
+
 		file_name = input_str.substr(0, input_str.find('.')) + ".avi";
 		FILE *com_file = fopen(file_name.c_str(), "w");	
 		char* buffer = (char*) malloc (BLOCK_SIZE);
@@ -472,14 +483,9 @@ void integrateData() {
 		}
 		free(buffer);
 		fclose(com_file);
-<<<<<<< Updated upstream
-	}
-=======
 
 		// save torrent file name    
    		FILE *oFile2;    
     	oFile2 = fopen("torrent_list", "a");
-    	fprintf(oFile2, "%s\n", oFileName.c_str());  
-    	
->>>>>>> Stashed changes
+    	fprintf(oFile2, "%s\n", input_str.c_str());  
 }
