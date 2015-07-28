@@ -257,17 +257,17 @@ void handshake(int connfd, char* info_hash) {
         exit(0);
     }
 
-	printf("Initiate handshake in connfd%i, content: %i \n", connfd, mes_len);  
+	//printf("Initiate handshake in connfd%i, content: %i \n", connfd, mes_len);  
 }
 void *download_helper(void *arg){
 	int id = global_id;
 	int sockfd; 
 	global_id++;
-	printf("Peer ip is %s, port is %i\n", ((ip_info*)arg)->ip, ((ip_info*)arg)->port);	
+	printf("Connection to --------->> Peer, IP is %s, Port is %i\n", ((ip_info*)arg)->ip, ((ip_info*)arg)->port);	
 	sockfd = connectToServer(((ip_info*)arg)->ip, ((ip_info*)arg)->port);
-	printf("connected to one peer\n");
+	//printf("connected to one peer\n");
 	//handshake
-	printf("hash_info in handshake is \n");
+	//printf("hash_info in handshake is \n");
 	 for (int i = 0; i < 20; i++) {
 	   			 printf("%02x" , ((ip_info*)arg)->hash_info[i]);
     	}
@@ -284,7 +284,7 @@ void *download_helper(void *arg){
 		return NULL;
 	}
 	n = recv(sockfd, &message_id, sizeof(char), 0);
-	printf("message_id is %c\n", message_id);
+	//printf("message_id is %c\n", message_id);
 
 	// receive bitfield
 	int new_port;
@@ -305,7 +305,7 @@ void get_bitfield(int port, int &new_port, int id){
 	int n, length;
 	char message_id;	
 	n = recv(port, &length, sizeof(int), 0);
-	printf("length is %i\n", length);
+	//printf("length is %i\n", length);
 	n = recv(port, &message_id, sizeof(char), 0);
 	char* bitfield = (char*) malloc (length);
 	n = recv(port, bitfield, length-4-1-4, 0);
@@ -314,7 +314,7 @@ void get_bitfield(int port, int &new_port, int id){
 	}
 	printf("\n");
 	n = recv(port, &new_port, sizeof(int), 0);
-	printf("new_port_number is %i\n", new_port);
+	//printf("new_port_number is %i\n", new_port);
 	for(int i=0; i<(length-4-1-4); i++){
 		if(bitfield[i]=='1'){
 			pthread_mutex_lock(&map_lock);
@@ -325,7 +325,7 @@ void get_bitfield(int port, int &new_port, int id){
 			}		
 			bitfield_map[i].push_back(id);
 			pthread_mutex_unlock(&map_lock);
-			printf("piece is %i, id is %i\n", i,id);
+			printf("Data Piece Check: Data_%i Exists\n", i);
 		}
 	}
 }
@@ -350,7 +350,7 @@ void request(int connfd, void *arg) {
         exit(0);
     }
     
-	printf("Request piece num:%i\n",num);  
+	printf("Total requested piece nummber: %i\n",num);  
 }
 
 void handle_reply(int connfd) {
@@ -397,7 +397,7 @@ void handle_reply(int connfd) {
 	fclose(oFile);
 	free(buff);
 
-	printf("Received file %s\n", file_name.c_str()); 
+	printf("Data --> %s <-- Received \n", file_name.c_str()); 
 
 	piece_num++;
 	// if (piece_num == total_piece) {
@@ -431,7 +431,7 @@ void handle_reply(int connfd) {
 }
 
 void *setup_piece_download_conn(void *arg){
-	printf("A new connection sets up\n");
+	printf("Peer Transfer Ready\n");
 	int connfd = connectToServer(((piece_info*)arg)->ip, ((piece_info*)arg)->port);
 	
 	request(connfd, arg);
@@ -455,7 +455,7 @@ void arrange(int totalPieceNumber, int totalSeedNumber) {
 		seed_list[i%totalSeedNumber] -> index_vec.push_back(i);
 		i++;
 	}
-	cout << "==========================" << i << endl;
+	cout << "Total Piece Number ========================== " << i << endl;
 }
 
 void integrateData() {

@@ -12,7 +12,7 @@
 #include "func.h"
 
 int connectToServer(char* serverIP, int port) {
-	printf("connecting to IP:%s, port:%i\n", serverIP, port);
+	printf("Connection ---> IP:%s, Port:%i\n", serverIP, port);
 
 	int sockfd;
     struct sockaddr_in servaddr;
@@ -39,14 +39,14 @@ int connectToServer(char* serverIP, int port) {
 }
 
 void disconnectToServer(int sockfd) {
-	printf("disconnecting from server\n");
+	printf("Connection Abort!\n");
 
 	close(sockfd);
 	return;
 }
 
 void publishTorrent(int sockfd, FILE* oFile) {
-	printf("publishing torrent\n");
+	printf("Transferring torrent\n");
 
 	// send request
 	char request = 'p';
