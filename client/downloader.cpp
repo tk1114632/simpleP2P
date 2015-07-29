@@ -89,15 +89,17 @@ int main(int argc, char* argv[]) {
 	n = recv(sockfd, &torrent_file_size, sizeof(int), 0);
 	buff = new char[torrent_file_size];	
 	n = recv(sockfd, buff, torrent_file_size, 0);
+	cout << "Torrent files on Server:" << endl << "============================" << endl;
 	for(int i=0; i<torrent_file_size; i++){
-		cout<<buff[i];
+		cout << buff[i];
 	}
+	cout << "============================" << endl;
 	delete buff;
 	
 	cout<<"CHOOSE THE TORRENT FILE FROM THE ABOVE LIST:"<<endl;
 	cin >> input_str;
 	const char * input = input_str.c_str();
-	printf("%s\n CHOSEN", input);
+	//printf("%s\n CHOSEN", input);
 	
 	int string_size = strlen(input);
 	if(send(sockfd, &string_size, sizeof(int), 0) <0){
@@ -397,7 +399,7 @@ void handle_reply(int connfd) {
 	fclose(oFile);
 	free(buff);
 
-	printf("Data --> %s <-- Received \n", file_name.c_str()); 
+	printf("Data --> %s <-- Received From Peer_No. %d \n", file_name.c_str(), connfd); 
 
 	piece_num++;
 	// if (piece_num == total_piece) {
