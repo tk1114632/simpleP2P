@@ -162,7 +162,7 @@ void handle_handshake(int connfd, int length) {
     }
     
     // send bitfield
-    cout << "sending bitfield" << endl;
+    //cout << "sending bitfield" << endl;
     string torrent_file_name = hash_map[info_hash_str];
     ifstream ifs(torrent_file_name);
     
@@ -173,8 +173,8 @@ void handle_handshake(int connfd, int length) {
     getline(ifs, piece_num_str);
     ifs.close();
 
-    cout << "video name:" << video_name << endl;
-    cout << "piece num:" << piece_num_str << endl;    
+    cout << "File Name:" << video_name << endl;
+    cout << "Requied Piece Number:" << piece_num_str << endl;    
     
     istringstream iss(piece_num_str);
     int piece_num;
@@ -206,7 +206,7 @@ void handle_handshake(int connfd, int length) {
         }
     }
     
-    cout << "bitfield:";
+    //cout << "bitfield:";
     for (int i = 0; i < piece_num; i++) {
         cout << bitfield[i];
     }
@@ -244,7 +244,7 @@ void handle_handshake(int connfd, int length) {
 }
 
 void *listen_for_request(void *arg) {
-    cout << "listening for request" << endl;
+    cout << "Seeding" << endl;
     int listenfd, connfd;
     struct sockaddr_in servaddr;
     char buff;
@@ -308,7 +308,7 @@ void reply(int connfd, char* video_prefix) {
         printf("send error\n");
         exit(0);
     } 
-	printf("peer requests index %i of video %s\n", piece_index, video_prefix);
+	printf("Some downloader requires file: %s, by the %ith piece.\nSending...", video_prefix, piece_index);
 
 	// get data from file;
 	int data_len;
@@ -345,7 +345,7 @@ void reply(int connfd, char* video_prefix) {
 	fread(data, 1, data_len, oFile);
 	//data[data_len] = '\0';
 	fclose(oFile); 
-	printf("will send file %s, index %i, size %i\n", file_name.c_str(), piece_index, data_len);
+	//printf("will send file %s, index %i, size %i\n", file_name.c_str(), piece_index, data_len);
 	
 	// reply
 	char mes_id = '4';
