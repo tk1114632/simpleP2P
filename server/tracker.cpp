@@ -119,7 +119,7 @@ void receiveTorrent(int connfd, FILE* oFile) {
     // save torrent file name    
     FILE *oFile2;    
     char *c_ptr;
-    char *buff;
+    //char *buff;
 
     oFile2 = fopen("torrent_list", "a");
     c_ptr = strchr(buff, '.');    
