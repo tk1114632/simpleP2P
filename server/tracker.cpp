@@ -55,6 +55,9 @@ int main(int argc, char* argv[]) {
     string ip_str;
     FILE* oFile;
     
+    cout << "Server & Tracker installation complete!" << endl;
+    cout << "Waiting for request ..." << endl;
+
     while (1) {
         if ((connfd = accept(listenfd, (struct sockaddr*)&clientAddr, &addrlen)) == -1) {
             printf("accept error\n");
